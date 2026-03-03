@@ -1,0 +1,133 @@
+<script>
+
+// ================= DISEASE DATA =================
+const diseases = [
+{name:"Diabetes",causes:"Insulin problem",symptoms:"High blood sugar",diagnosis:"Blood test",treatment:"Medication & Diet"},
+{name:"Asthma",causes:"Airway inflammation",symptoms:"Breathing problem",diagnosis:"Lung test",treatment:"Inhaler"},
+{name:"Heart Disease",causes:"Blocked arteries",symptoms:"Chest pain",diagnosis:"ECG",treatment:"Surgery"},
+{name:"Migraine",causes:"Stress",symptoms:"Headache",diagnosis:"Clinical exam",treatment:"Pain relievers"},
+{name:"Cancer",causes:"Abnormal cells",symptoms:"Weight loss",diagnosis:"Biopsy",treatment:"Chemotherapy"}
+];
+
+// ================= DOCTOR DATA =================
+const doctors = [
+{name:"Dr. Sharma", spec:"Cardiologist", exp:10, hospital:"Apollo", rating:4.5, fee:800},
+{name:"Dr. Verma", spec:"Neurologist", exp:8, hospital:"Fortis", rating:4.2, fee:700},
+{name:"Dr. Khan", spec:"Pulmonologist", exp:6, hospital:"AIIMS", rating:4.7, fee:600},
+{name:"Dr. Roy", spec:"General", exp:5, hospital:"City Hospital", rating:4.0, fee:400},
+{name:"Dr. Sen", spec:"Cardiologist", exp:12, hospital:"Medanta", rating:4.8, fee:1000},
+{name:"Dr. Gupta", spec:"General", exp:7, hospital:"AMRI", rating:4.3, fee:500}
+];
+
+// ================= SEARCH FUNCTION =================
+function searchDisease(){
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const resultDiv = document.getElementById("diseaseResult");
+
+  const found = diseases.find(d => d.name.toLowerCase().includes(query));
+
+  if(found){
+    resultDiv.innerHTML = `
+      <div class="card">
+      <h3>${found.name}</h3>
+      <p><b>Causes:</b> ${found.causes}</p>
+      <p><b>Symptoms:</b> ${found.symptoms}</p>
+      <p><b>Diagnosis:</b> ${found.diagnosis}</p>
+      <p><b>Treatment:</b> ${found.treatment}</p>
+      </div>
+    `;
+  } else {
+    resultDiv.innerHTML = "Disease not found";
+  }
+}
+
+// ================= RENDER DOCTORS =================
+function renderDoctors(){
+  const list = document.getElementById("doctorList");
+  list.innerHTML="";
+  doctors.forEach(d=>{
+    list.innerHTML += `
+      <div class="card">
+        <h3>${d.name}</h3>
+        <p>${d.spec}</p>
+        <p>Fee: ₹${d.fee}</p>
+      </div>
+    `;
+  });
+}
+
+// ================= BOOK APPOINTMENT =================
+function bookAppointment(){
+
+  const name = document.getElementById("patientName").value;
+  const age = document.getElementById("age").value;
+  const doctor = document.getElementById("doctorSelect").value;
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+
+  if(name==="" || age==="" || doctor===""){
+    alert("Fill all fields");
+    return;
+  }
+
+  const booking = {name,age,doctor,date,time};
+
+  let bookings = JSON.parse(localStorage.getItem("appointments")) || [];
+  bookings.push(booking);
+
+  localStorage.setItem("appointments", JSON.stringify(bookings));
+
+  document.getElementById("bookingMessage").innerText="Appointment Booked Successfully!";
+
+  displayBookings();
+}
+
+// ================= DISPLAY ALL BOOKINGS =================
+function displayBookings(){
+
+  const bookingList = document.getElementById("allBookings");
+  bookingList.innerHTML="";
+
+  let bookings = JSON.parse(localStorage.getItem("appointments")) || [];
+
+  if(bookings.length === 0){
+    bookingList.innerHTML="<p>No bookings found</p>";
+    return;
+  }
+
+  bookings.forEach((b,index)=>{
+    bookingList.innerHTML += `
+      <div class="card">
+        <p><b>Name:</b> ${b.name}</p>
+        <p><b>Age:</b> ${b.age}</p>
+        <p><b>Doctor:</b> ${b.doctor}</p>
+        <p><b>Date:</b> ${b.date}</p>
+        <p><b>Time:</b> ${b.time}</p>
+        <button onclick="deleteBooking(${index})">Delete</button>
+      </div>
+    `;
+  });
+}
+
+// ================= DELETE BOOKING =================
+function deleteBooking(index){
+  let bookings = JSON.parse(localStorage.getItem("appointments")) || [];
+  bookings.splice(index,1);
+  localStorage.setItem("appointments", JSON.stringify(bookings));
+  displayBookings();
+}
+
+// ================= LOAD DOCTORS =================
+function loadDoctors(){
+  const select = document.getElementById("doctorSelect");
+  doctors.forEach(d=>{
+    select.innerHTML += `<option>${d.name}</option>`;
+  });
+}
+
+// INITIAL LOAD
+renderDoctors();
+loadDoctors();
+displayBookings();
+
+</script>
